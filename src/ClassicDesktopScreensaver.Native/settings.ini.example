@@ -1,0 +1,38 @@
+; Classic Desktop Screensaver native Win32 defaults
+; Copy this file to settings.ini beside ClassicDesktopScreensaver.exe.
+; Application settings are stored in this file, not in the Windows Registry.
+
+[General]
+Language=Auto
+AutoScreenSaverEnabled=true
+ScreenSaverIdleMinutes=2
+LockEnabled=false
+LockIdleMinutes=10
+ScreenSaverPath=
+; Retained when UseCustomScreenSaver=false; ScreenSaverPath stays empty for older builds.
+LastCustomScreenSaverPath=
+UseCustomScreenSaver=false
+ShowStatusNotifications=true
+ShowTrayStatusIcon=true
+StartWithWindows=false
+
+[Guards]
+; Legacy compatibility only; ignored by the Native automatic screen saver.
+BlockScreenSaverWhileMediaPlaying=true
+BlockScreenSaverWhileFullscreen=true
+SuspendLockWhileMediaOrPresentation=true
+
+[HotCorner]
+Enabled=false
+Corner=TopRight
+DelayMs=500
+
+[Hotkeys]
+StartScreenSaverEnabled=false
+StartScreenSaver=Shift+ScrollLock
+ToggleScreenSaverEnabled=false
+ToggleScreenSaver=ScrollLock
+SleepEnabled=false
+Sleep=Pause
+HibernateEnabled=false
+Hibernate=Shift+Pause

@@ -1,352 +1,170 @@
-# ClassicDesktopScreensaver-v1.0.0
+# Classic Desktop Screensaver
 
-# English
+Classic Desktop Screensaver is a small native Windows utility that runs the
+screen saver selected in Windows, or a custom .scr file, using its own idle
+timer. It can start a screen saver without automatically locking the session.
 
-## Overview
+The current release is a native C++20 / Win32 x64 application. It does not need
+.NET, a service, a driver, administrator rights, or an installer to run.
+This release is version **2.0.0**.
 
-Classic Desktop Screensaver is a small, free Windows utility that launches classic `.scr` screen savers directly on the desktop using its own idle timer.
+## Screenshots
 
-It is designed for Windows 10/11 users who want the traditional screen saver behavior without being forced into the Windows lock screen first.
+### Application Settings
 
-The application is intentionally lightweight: no Windows service, no driver, no telemetry, no administrator rights, and no application settings written to the Windows Registry.
+![Application Settings](images/ClassicDesktopScreensaver.png)
 
-## Requirements
+### Desktop Screensaver in Action
 
-- **Minimum:** Windows 10 version 1809, build **17763**
-- Windows 11 is supported.
-- The source project uses **.NET 10 / WPF**.
-- `Build-Release.cmd` produces a self-contained `win-x64` build, so the target PC does not need a separate .NET Runtime installation.
+![Desktop Screensaver in Action](images/Windows-11-x64-Desktop.png)
 
-## Main features
+## Tested Windows versions
 
-- Own idle timer based on Windows user-input activity.
-- Runs the `.scr` screen saver selected in Windows.
-- Optional custom `.scr` file.
-- Screen saver can run without automatically locking Windows.
-- Independent optional Windows lock timer.
-- Video playback protection.
-- Full-screen application / presentation protection.
-- Optional lock-delay protection during video and presentations.
-- Hot Corner support on the primary display.
-- Configurable global keyboard shortcuts.
-- Optional lower-right status notifications.
-- Optional system-tray status icon.
-- Optional start-with-Windows support through the user's Startup folder.
-- Turkish and English user interface.
+Tested on Windows 10 22H2 and Windows 11 26H2. Earlier Windows versions have not been tested.
+
+Windows 11 26H2 testing included computers that support S0 Modern Standby and
+computers that support classic S3 Sleep. Available states depend on the
+computer's firmware, ACPI implementation, and Windows configuration; they do
+not depend on the computer's age alone.
+
+## Features
+
+- Runs the Windows-selected screen saver or an optional custom .scr file.
+- Starts the screen saver after an independently configured idle interval.
+- Optionally locks Windows after a separate idle interval.
+- Provides primary-display Hot Corners.
+- Protects against starting the screen saver during full-screen applications
+  and presentations.
+- Provides configurable keyboard shortcuts and system-tray controls.
+- Can start with the current user through a Startup-folder shortcut.
+- Provides Turkish and English user interfaces.
+
+The app does not reliably detect video playing inside every browser or media
+player window. Windowed-video detection is not supported. The full-screen and
+presentation guards remain available.
+
+## Power states
+
+The Sleep shortcut follows the sleep state Windows reports as available.
+Hibernate is a separate action.
+
+| Code | Windows power state | English term | Türkçe |
+|---|---|---|---|
+| S0 Low Power Idle | Modern Standby | Modern Standby / Sleep | Modern Bekleme / Uyku |
+| S3 | Classic sleep | Sleep | Uyku |
+| S4 | Hibernate | Hibernate | Hazırda Beklet |
+
+- On an S0 Modern Standby computer, Pause requests the Windows display-off /
+  Modern Standby workflow. The request is not a direct guarantee that Windows
+  will enter S0 Sleep; Windows power policy decides whether and when that
+  transition occurs.
+- On a computer that supports classic S3 Sleep instead, Pause requests S3
+  through the Windows sleep API.
+- Shift + Pause requests S4 Hibernate only when Windows reports both S4
+  support and an available hibernation file.
+- The app does not emulate unsupported states. It does not convert a failed or
+  unavailable S0/S3 request into Hibernate, and it does not convert Hibernate
+  into Sleep or Shutdown.
+- powercfg /a shows the sleep states available on the current computer.
+  Modern computers may not offer S3; its absence is not by itself an app error.
+
+S0, S3, and S4 are distinct states. The actual set of available states depends
+on BIOS/UEFI, ACPI, and Windows configuration.
 
 ## Default keyboard shortcuts
 
+The shortcuts below are assigned by default but **disabled until enabled in
+Settings**. Each shortcut has its own enable switch, and users can change the
+key combination.
+
 | Shortcut | Action |
 |---|---|
-| `Shift + Scroll Lock` | Start the screen saver immediately |
-| `Scroll Lock` | Enable / disable the automatic screen saver |
-| `Pause` | Sleep / supported standby mode — **disabled by default** |
-| `Shift + Pause` | Hibernate — **disabled by default** |
+| Scroll Lock | Toggle automatic screen saver |
+| Shift + Scroll Lock | Start the screen saver |
+| Pause | Sleep using the available S0 or S3 path; except in recognized terminal windows, where the bare physical Pause is passed through |
+| Shift + Pause | Hibernate (S4) |
 
-All shortcuts can be changed in Settings.
+The Pause key is intentionally reserved for its native function in terminal windows, where it may be used to pause running processes. Classic Desktop Screensaver does not override this behavior.
 
-### Shortcut switches
+Pause tuşunun terminal pencerelerindeki doğal işlevi özellikle korunmuştur. Bu tuş, terminalde çalışan işlemleri duraklatmak için kullanılabildiğinden, Classic Desktop Screensaver bu işlevi engellemez.
 
-All four keyboard shortcuts have their own independent On/Off switch:
+The terminal exception applies only to the physical, unmodified Pause key.
+The current implementation recognizes the classic Console Host window class
+used by CMD and Windows PowerShell, and the Windows Terminal window class.
+Third-party and IDE-integrated terminals may use other window classes and have
+not all been verified. In those terminals, test the behavior before enabling
+Pause as a Sleep shortcut.
 
-- Start screen saver
-- Toggle automatic screen saver
-- Sleep / Standby
-- Hibernate
+## Screen saver and locking behavior
 
-**All keyboard shortcuts are disabled by default.** Users enable only the shortcuts they want. When a shortcut is disabled, Classic Desktop Screensaver does not intercept that key combination and it is passed through normally.
+The automatic screen saver uses Windows user-input activity and its own
+configured idle time. Windows locking has a separate timer and does not depend
+on the app screen saver being enabled.
 
-### Scroll Lock note
+When Classic Desktop Screensaver runs normally, it temporarily prevents the
+Windows-selected screen saver from competing with the app's own screen saver.
+It does not write that runtime change to the user profile and restores the
+previous state during normal exit or Windows session end. Password-protected
+and recognized policy-managed screen savers are left alone. Close the app with
+the tray menu's **Exit** command. A crash or forced process termination can
+bypass cleanup and may leave the Windows screen saver disabled for the current
+logon session.
 
-`Scroll Lock` is rarely used today, but it still has a real function in some software. Microsoft Excel, for example, can change arrow-key scrolling behavior when Scroll Lock is active.
+## Running the application
 
-When `Scroll Lock` is assigned to Classic Desktop Screensaver, the application intercepts the configured shortcut and prevents the normal Scroll Lock state/LED from changing. The shortcut can be changed at any time.
-
-## Sleep / standby behavior
-
-Newer PCs may not support legacy S1-S3 Sleep states and may use **Modern Standby (S0 Low Power Idle)** instead.
-
-The `Pause` action asks Windows to enter the supported suspend/standby state. Windows selects the actual power model available on that computer.
-
-Hibernate still requires Hibernate to be enabled and supported by Windows and the hardware.
-
-## Video and presentation protection
-
-Automatic screen saver activation can be delayed while visual media is playing.
-
-The program uses the Windows global media-session API available from Windows 10 version 1809 and also checks full-screen / presentation state.
-
-Media detection cannot be guaranteed for every third-party application, so full-screen detection acts as an additional protection layer.
-
-## Language
-
-The program contains two interface languages:
-
-- English
-- Türkçe
-
-Default setting: **Automatic (Windows language)**.
-
-- If the Windows display language is Turkish, the application opens in Turkish.
-- On every other Windows display language, the application opens in English.
-- The user can manually select **English** or **Türkçe** in Settings.
-- `Setup.cmd` follows the same rule.
+- Run **ClassicDesktopScreensaver.exe** normally to open the main Settings
+  window.
+- Run it with **--background** to start in the system tray without opening
+  Settings. The current user's Startup shortcut uses this mode.
+- The app is single-instance. Starting it again opens Settings in the existing
+  instance.
+- Closing the Settings window minimizes the app to the tray. Use the tray
+  menu's **Exit** command to close it.
 
 ## Portable use
 
-The application can be run directly from the release folder without installation.
-
-`settings.ini` is stored next to the executable.
-
-## Setup.cmd installation
-
-- `Setup.cmd` opens under the classic Console Host and temporarily uses **Consolas 18** for better readability. It does not change permanent console or Registry settings.
-
-`Setup.cmd` provides an optional, simple per-user installation.
-
-It:
-
-- does **not** require administrator rights or UAC,
-- checks for Windows 10 version 1809 / build 17763 or later,
-- installs only for the currently signed-in Windows user,
-- copies the application to `%AppData%\Classic Desktop Screensaver`,
-- creates a Start Menu shortcut for that user,
-- does not install a service or driver,
-- does not write application settings to the Registry,
-- can uninstall the application and its shortcuts.
-
-The installation is **not shared with other Windows user accounts**. If another user should use the application, run `Setup.cmd` separately while signed in to that user's account.
-
-After a successful Install or Uninstall operation, Setup displays the result, waits for a key press, and exits instead of returning to the menu.
-
-## Registry policy
-
-Classic Desktop Screensaver does **not write its configuration or installation data to the Windows Registry**.
-
-It may read the existing Windows screen saver setting below in read-only mode to determine the `.scr` file currently selected by Windows:
-
-`HKCU\Control Panel\Desktop\SCRNSAVE.EXE`
-
-Application settings are stored in `settings.ini`.
-
-## Start with Windows
-
-The application does not use the Registry `Run` key.
-
-When **Start with Windows** is enabled, it creates a shortcut in the current user's Startup folder and launches the application with `--background`.
-
-## About / AI disclosure
-
-The application's **About / Info** window includes the minimum Windows requirement, version, license, privacy/installation notes, and the following disclosure:
-
-> The source code was prepared by AI (OpenAI ChatGPT) based on the project requirements.
-
-The project is released under the MIT License.
-
-## Build
-
-Requirements for building from source:
-
-- Windows 10/11
-- .NET 10 SDK
-
-Run:
-
-```text
-Build-Release.cmd
-```
-
-The release folder is created under:
-
-```text
-dist\ClassicDesktopScreensaver-win-x64
-```
-
-## Known first-release limitations
-
-- Hot Corner currently uses the corners of the **primary display**.
-- Some third-party `.scr` files may behave differently from standard Windows screen savers.
-- Media-session detection depends on what the playing application exposes to Windows.
-- Corporate Windows policies may restrict power, lock, or screen saver behavior.
-
-## License
-
-MIT License. See `LICENSE`.
-
----
-
-# Türkçe
-
-## Genel Bakış
-
-Classic Desktop Screensaver, klasik Windows `.scr` ekran koruyucularını kendi boşta-kalma sayacıyla doğrudan masaüstünde çalıştıran küçük ve ücretsiz bir Windows yardımcı programıdır.
-
-Windows 10/11'de klasik ekran koruyucu davranışını isteyen, ancak önce Windows kilit ekranına geçilmesini istemeyen kullanıcılar için tasarlanmıştır.
-
-Program özellikle sade tutulmuştur: Windows servisi yoktur, sürücü kurmaz, telemetri içermez, yönetici yetkisi istemez ve uygulama ayarlarını Windows Registry'sine yazmaz.
-
-## Sistem Gereksinimi
-
-- **Minimum:** Windows 10 version 1809, build **17763**
-- Windows 11 desteklenir.
-- Kaynak proje **.NET 10 / WPF** kullanır.
-- `Build-Release.cmd`, self-contained `win-x64` sürümü üretir; hedef bilgisayarda ayrıca .NET Runtime kurulu olması gerekmez.
-
-## Temel Özellikler
-
-- Windows kullanıcı girişini temel alan kendi idle/boşta-kalma sayacı.
-- Windows'ta seçili `.scr` ekran koruyucusunu çalıştırma.
-- İsteğe bağlı özel `.scr` dosyası seçimi.
-- Windows'u otomatik kilitlemeden ekran koruyucu çalıştırabilme.
-- Bağımsız ve isteğe bağlı Windows kilitleme süresi.
-- Video oynatımı sırasında otomatik ekran koruyucuyu erteleme.
-- Tam ekran uygulama / sunum koruması.
-- Video ve sunum sırasında otomatik kilitlemeyi de erteleme seçeneği.
-- Ana monitörde Hot Corner desteği.
-- Değiştirilebilir global klavye kısayolları.
-- İsteğe bağlı sağ-alt durum bildirimi.
-- İsteğe bağlı sistem tepsisi durum simgesi.
-- Kullanıcının Startup klasörü üzerinden Windows ile başlatma.
-- Türkçe ve İngilizce arayüz.
-
-## Varsayılan Klavye Kısayolları
-
-| Kısayol | İşlev |
-|---|---|
-| `Shift + Scroll Lock` | Ekran koruyucuyu hemen başlatır — **varsayılan kapalı** |
-| `Scroll Lock` | Otomatik ekran koruyucuyu açar / kapatır |
-| `Pause` | Uyku / desteklenen bekleme moduna geçirir — **varsayılan kapalı** |
-| `Shift + Pause` | Hazırda Beklet'e geçirir — **varsayılan kapalı** |
-
-Bütün kısayollar Ayarlar bölümünden değiştirilebilir.
-
-### Kısayolları ayrı ayrı Aç/Kapa
-
-Dört klavye kısayolunun da kendi bağımsız Aç/Kapa seçeneği vardır:
-
-- Ekran koruyucuyu başlat
-- Otomatik ekran koruyucuyu aktif/pasif yap
-- Uyku / Bekleme
-- Hazırda Beklet
-
-**Bütün klavye kısayolları varsayılan olarak kapalıdır.** Kullanıcı yalnız istediği kısayolları etkinleştirir. Bir kısayol kapalıysa Classic Desktop Screensaver o tuş kombinasyonunu yakalamaz ve tuş normal şekilde sisteme/uygulamalara iletilir.
-
-### Scroll Lock notu
-
-`Scroll Lock` günümüzde çok az kullanılsa da bazı programlarda gerçek bir işleve sahiptir. Örneğin Microsoft Excel, Scroll Lock açıkken yön tuşlarının kaydırma davranışını değiştirebilir.
-
-Scroll Lock Classic Desktop Screensaver'a atanmışsa program ilgili tuş olayını yakalar ve normal Scroll Lock durumu/LED değişikliğini engeller. Kısayol istenildiği zaman değiştirilebilir.
-
-## Uyku / Bekleme Davranışı
-
-Yeni nesil bilgisayarların bazıları klasik S1-S3 Sleep durumlarını desteklemez ve bunun yerine **Modern Standby (S0 Low Power Idle)** kullanır.
-
-`Pause` işlevi Windows'tan bilgisayarın desteklediği askıya alma/bekleme durumuna geçmesini ister. Kullanılacak gerçek güç modelini Windows belirler.
-
-Hazırda Beklet işlevinin ise Windows'ta açık ve donanım tarafından destekleniyor olması gerekir.
-
-## Video ve Sunum Koruması
-
-Görsel medya oynatılırken otomatik ekran koruyucunun başlaması ertelenebilir.
-
-Program Windows 10 version 1809 ile gelen global medya oturumu API'sini kullanır; ayrıca tam ekran ve sunum durumlarını da kontrol eder.
-
-Her üçüncü taraf uygulama medya bilgisini Windows'a aynı şekilde bildirmediği için medya tespiti yüzde 100 garanti değildir. Tam ekran kontrolü ek koruma katmanı olarak kullanılır.
-
-## Dil
-
-Program iki arayüz dili içerir:
-
-- English
-- Türkçe
-
-Varsayılan seçim **Otomatik (Windows dili)** şeklindedir.
-
-- Windows görüntüleme dili Türkçe ise program Türkçe açılır.
-- Diğer bütün Windows dillerinde program İngilizce açılır.
-- Kullanıcı Ayarlar bölümünden dili elle **Türkçe** veya **English** olarak sabitleyebilir.
-- `Setup.cmd` de aynı kuralı kullanır.
-
-## Portable Kullanım
-
-Program release klasöründen kurulum yapılmadan doğrudan çalıştırılabilir.
-
-`settings.ini` dosyası EXE'nin yanında tutulur.
-
-## Setup.cmd ile Kurulum
-
-- `Setup.cmd`, daha rahat okunması için klasik Console Host altında açılır ve yalnız o pencere için geçici olarak **Consolas 18** kullanır. Kalıcı konsol veya Registry ayarı değiştirmez.
-
-`Setup.cmd`, isteyen kullanıcı için basit ve kullanıcı-bazlı kurulum sağlar.
-
-Kurulum:
-
-- yönetici yetkisi veya UAC istemez,
-- Windows 10 version 1809 / build 17763 veya üzerini kontrol eder,
-- yalnız mevcut Windows kullanıcısı için yapılır,
-- programı `%AppData%\Classic Desktop Screensaver` altına kopyalar,
-- yalnız o kullanıcı için Başlat Menüsü kısayolu oluşturur,
-- Windows servisi veya sürücü kurmaz,
-- uygulama ayarlarını Registry'ye yazmaz,
-- Uninstall ile programı ve oluşturulan kısayolları kaldırır.
-
-Kurulum **diğer Windows kullanıcı hesaplarıyla paylaşılmaz**. Program başka bir kullanıcı hesabında da kullanılacaksa, o kullanıcıyla oturum açıldıktan sonra `Setup.cmd` ayrıca çalıştırılmalıdır.
-
-Install veya Uninstall başarıyla tamamlandığında Setup sonucu bildirir, bir tuşa basılmasını bekler ve menüye dönmeden kapanır.
-
-## Registry Politikası
-
-Classic Desktop Screensaver kendi kurulum veya uygulama ayarlarını Windows Registry'sine **yazmaz**.
-
-Windows'ta seçili `.scr` ekran koruyucusunu belirlemek için aşağıdaki mevcut Windows değerini salt-okunur olarak okuyabilir:
-
-`HKCU\Control Panel\Desktop\SCRNSAVE.EXE`
-
-Program ayarları `settings.ini` dosyasında tutulur.
-
-## Windows ile Başlatma
-
-Program Registry `Run` anahtarını kullanmaz.
-
-**Windows başladığında başlat** seçildiğinde mevcut kullanıcının Startup klasörüne bir kısayol oluşturulur ve program `--background` parametresiyle çalıştırılır.
-
-## Hakkında / Yapay Zekâ Bilgisi
-
-Programın **Hakkında / Info** penceresinde minimum Windows sürümü, program sürümü, lisans ve kurulum/gizlilik bilgileriyle birlikte şu açıklama bulunur:
-
-> Bu yazılımın kaynak kodu, proje gereksinimleri doğrultusunda yapay zekâ (OpenAI ChatGPT) tarafından hazırlanmıştır.
-
-Proje MIT Lisansı ile yayımlanır.
-
-## Derleme
-
-Kaynak koddan derlemek için:
-
-- Windows 10/11
-- .NET 10 SDK
-
-gereklidir.
-
-Çalıştırın:
-
-```text
-Build-Release.cmd
-```
-
-Release klasörü şurada oluşturulur:
-
-```text
-dist\ClassicDesktopScreensaver-win-x64
-```
-
-## İlk Sürümde Bilinen Sınırlar
-
-- Hot Corner şimdilik **ana monitörün** köşelerini kullanır.
-- Bazı üçüncü taraf `.scr` dosyaları standart Windows ekran koruyucularından farklı davranabilir.
-- Medya algılama, oynatıcı uygulamanın Windows'a sunduğu bilgilere bağlıdır.
-- Kurumsal Windows ilkeleri güç, kilitleme veya ekran koruyucu davranışlarını kısıtlayabilir.
-
-## Lisans
-
-MIT Lisansı. Ayrıntılar için `LICENSE` dosyasına bakın.
-
+Extract the Windows x64 package to a folder and keep **settings.ini** beside
+**ClassicDesktopScreensaver.exe**. The file is editable and contains per-user
+application settings. The release archive includes a default settings file.
+The app can also run without an existing settings.ini; it uses defaults until
+the user saves a setting.
+
+## Setup
+
+Run **Setup.cmd** and select one of the following:
+
+1. **Install** copies the app to the current user's
+   **%AppData%\Classic Desktop Screensaver** folder and creates a Start Menu
+   shortcut. It does not start the app.
+2. **Install and Run** performs the same installation and opens the main
+   Settings window.
+3. **Uninstall** closes the running app through its normal exit path, then
+   removes the app folder, settings file, and shortcuts.
+4. **Exit** closes Setup without changes.
+
+Setup does not require administrator privileges and installs only for the
+current Windows user. Install preserves an existing settings.ini; Uninstall
+removes the settings stored in the installation folder. Back up that file
+before uninstalling if you want to keep those preferences.
+
+The **Start with Windows** option creates or removes a shortcut in the current
+user's Startup folder. It launches the app with **--background**; no Registry
+Run entry, service, or driver is added.
+
+## Language
+
+Automatic language selection follows the current Windows user's UI language:
+Turkish Windows UI uses Turkish, and other languages use English. Turkish and
+English can also be selected manually in Settings.
+
+## Build from source
+
+Use Visual Studio 2022 Build Tools with the MSVC v143 x64 toolchain and Windows
+SDK 10.0.26100 or newer:
+
+- **Build-Native.cmd** builds the x64 application and safe regression tests.
+- **Build-Release.cmd** builds the native application, runs the regression
+  tests, and creates a versioned x64 ZIP package.
+
+The Release binary uses the static MSVC runtime and depends only on Windows
+system DLLs. It has no .NET Runtime dependency.

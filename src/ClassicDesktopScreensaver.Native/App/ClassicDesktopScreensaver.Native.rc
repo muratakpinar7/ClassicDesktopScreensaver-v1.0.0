@@ -1,0 +1,38 @@
+#include "resource.h"
+#include <winver.h>
+
+IDI_APP_ICON ICON "..\\..\\ClassicDesktopScreensaver\\Assets\\AppIcon.ico"
+IDI_TRAY_ACTIVE ICON "..\\..\\ClassicDesktopScreensaver\\Assets\\TrayActive.ico"
+IDI_TRAY_INACTIVE ICON "..\\..\\ClassicDesktopScreensaver\\Assets\\TrayInactive.ico"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,0,0,0
+ PRODUCTVERSION 2,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "Classic Desktop Screensaver Project\0"
+            VALUE "FileDescription", "Classic Desktop Screensaver (Native Win32)\0"
+            VALUE "FileVersion", "2.0.0.0\0"
+            VALUE "InternalName", "ClassicDesktopScreensaver\0"
+            VALUE "OriginalFilename", "ClassicDesktopScreensaver.exe\0"
+            VALUE "ProductName", "Classic Desktop Screensaver\0"
+            VALUE "ProductVersion", "2.0.0.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END

@@ -1,0 +1,44 @@
+# Build output
+**/bin/
+**/obj/
+**/build/
+/dist/
+
+# Visual Studio / IDE
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Runtime settings
+**/settings.ini
+**/settings.*.ini
+
+# Personal diagnostics and temporary files
+/diagnostics/
+/logs/
+/traces/
+/test-results/
+/work/
+*.log
+*.etl
+*.dmp
+*.evtx
+*.tmp
+*.temp
+*.trace
+*.bak
+SleepStudy*.html
+*KernelPower*.csv
+SleepComparison-*.json
+SleepComparison-*.csv
+*~
+
+# Packages / generated archives
+*.zip
+*.nupkg
+
+# OS junk
+Thumbs.db
+.DS_Store
