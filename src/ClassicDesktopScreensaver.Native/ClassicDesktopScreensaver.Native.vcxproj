@@ -93,6 +93,9 @@
     <ClInclude Include="Core\LaunchBehavior.h" />
     <ClInclude Include="Core\UiTestPolicy.h" />
     <ResourceCompile Include="App\ClassicDesktopScreensaver.Native.rc" />
+    <None Include="App\Assets\AppIcon.ico" />
+    <None Include="App\Assets\TrayActive.ico" />
+    <None Include="App\Assets\TrayInactive.ico" />
     <None Include="App\app.manifest" />
   </ItemGroup>
   <ItemGroup>

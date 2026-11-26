@@ -42,3 +42,14 @@ SleepComparison-*.csv
 # OS junk
 Thumbs.db
 .DS_Store
+# Browser packages and credential material
+*.crx
+*.pem
+*.key
+*.pfx
+*.p12
+.env
+.env.*
+
+# Additional generated test output
+**/TestResults/

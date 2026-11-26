@@ -1,9 +1,9 @@
 #include "resource.h"
 #include <winver.h>
 
-IDI_APP_ICON ICON "..\\..\\ClassicDesktopScreensaver\\Assets\\AppIcon.ico"
-IDI_TRAY_ACTIVE ICON "..\\..\\ClassicDesktopScreensaver\\Assets\\TrayActive.ico"
-IDI_TRAY_INACTIVE ICON "..\\..\\ClassicDesktopScreensaver\\Assets\\TrayInactive.ico"
+IDI_APP_ICON ICON "Assets\\AppIcon.ico"
+IDI_TRAY_ACTIVE ICON "Assets\\TrayActive.ico"
+IDI_TRAY_INACTIVE ICON "Assets\\TrayInactive.ico"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 2,0,0,0

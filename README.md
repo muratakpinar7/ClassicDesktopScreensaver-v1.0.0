@@ -159,12 +159,46 @@ English can also be selected manually in Settings.
 
 ## Build from source
 
-Use Visual Studio 2022 Build Tools with the MSVC v143 x64 toolchain and Windows
-SDK 10.0.26100 or newer:
+The public source tree contains the current native C++20 / Win32 x64 application and its native regression tests.
+It omits the retired .NET/WPF application and historical power/UI research probes.
 
-- **Build-Native.cmd** builds the x64 application and safe regression tests.
-- **Build-Release.cmd** builds the native application, runs the regression
-  tests, and creates a versioned x64 ZIP package.
+### Requirements
 
-The Release binary uses the static MSVC runtime and depends only on Windows
-system DLLs. It has no .NET Runtime dependency.
+- Visual Studio 2022 or Visual Studio 2022 Build Tools.
+- MSVC v143 x64 toolset.
+- Windows SDK 10.0.26100.0.
+
+No .NET SDK or .NET Runtime is required to build or run the native application.
+
+### Build and run tests
+
+Open **ClassicDesktopScreensaver.sln** in Visual Studio and select **Release | x64**.
+The solution includes the NativeCore library, the application, and the
+`NativeTests` project.
+
+From a Developer PowerShell or a regular PowerShell with MSBuild available, run these commands from the repository root:
+
+```powershell
+.\Build-Native.cmd
+```
+
+This builds the x64 Release application, builds the tests in
+`tests/ClassicDesktopScreensaver.Native.Tests`, and runs the regression suite.
+The scripts need MSVC v143 and Windows SDK 10.0.26100.0.
+
+After building, **Run-Dev.cmd** starts the portable executable from
+`src/ClassicDesktopScreensaver.Native/bin/Portable/win-x64/`. If it is missing,
+run `Build-Native.cmd` first.
+
+To build the versioned Windows x64 distribution archive, run:
+
+```powershell
+.\Build-Release.cmd
+```
+
+The archive is written to the ignored `dist/` directory. It contains the
+application, default `settings.ini`, Setup files, README, CHANGELOG, LICENSE,
+and version file. Regression tests and development diagnostics are not included
+in the Release ZIP.
+
+The Release binary uses the static MSVC runtime and depends only on Windows system DLLs. It has no .NET Runtime dependency.
